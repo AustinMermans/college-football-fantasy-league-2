@@ -6,8 +6,11 @@ output/
 __pycache__/
 *.py[cod]
 .pytest_cache/
+web/draft-data.js
 data_derived/
 results/*
 !results/MODEL_CARD.md
 !results/live_picks.csv
 !results/team_projections_2026.csv
+!results/game_probabilities_2026.csv
+!results/market_model.json

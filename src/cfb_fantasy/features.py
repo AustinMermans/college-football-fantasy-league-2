@@ -10,13 +10,11 @@ import pandas as pd
 
 FEATURE_COLUMNS = [
     "long_margin_diff",
+    "talent_composite_diff",
+    "net_adj_epa_diff",
     "fbs_status_diff",
-    "rating_diff",
-    "long_win_diff",
-    "rating_momentum_diff",
+    "blue_chip_ratio_diff",
     "home_field",
-    "win_form_diff",
-    "margin_form_diff",
 ]
 FEATURE_CANDIDATES = [
     "rating_diff",
@@ -28,6 +26,9 @@ FEATURE_CANDIDATES = [
     "history_depth_diff",
     "rating_momentum_diff",
     "home_field",
+    "talent_composite_diff",
+    "blue_chip_ratio_diff",
+    "net_adj_epa_diff",
 ]
 ELO_COLUMNS = ["rating_diff", "home_field"]
 
@@ -285,6 +286,7 @@ def schedule_feature_frame(
         rows.append(
             {
                 "game_id": str(game.game_id),
+                "season": int(game.season),
                 "home_id": str(game.home_id),
                 "away_id": str(game.away_id),
                 "home_team": game.home_team,

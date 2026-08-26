@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 import pandas as pd
 
-from cfb_fantasy.scoreboard import build_scoreboard
+from cfb_fantasy.scoreboard import build_scoreboard, update_live_projections
 
 
 def test_scoreboard_counts_points_and_builds_snake_board():
@@ -71,5 +71,59 @@ def test_scoreboard_counts_points_and_builds_snake_board():
     assert payload["managers"][0]["name"] == "One"
     assert payload["managers"][0]["fantasyPoints"] == 1.0
     assert payload["managers"][0]["teams"][0]["expectedPlayoffPoints"] == 0.0
+    assert payload["managers"][0]["teams"][0]["projectedExpectedPoints"] == 10.0
     assert payload["managers"][1]["teams"][0]["nextGame"]["opponent"] == "Gamma"
     assert [pick["managerSlot"] for pick in payload["draftBoard"]] == [1, 2, 2, 1]
+
+
+def test_live_projections_replace_completed_games_with_outcomes():
+    games = pd.DataFrame(
+        [
+            {
+                "game_id": "g1",
+                "completed": True,
+                "home_points": 17,
+                "away_points": 20,
+            }
+        ]
+    )
+    probabilities = pd.DataFrame(
+        [
+            {
+                "game_id": "g1",
+                "home_id": "1",
+                "away_id": "2",
+                "home_win_probability": 0.75,
+                "away_win_probability": 0.25,
+            }
+        ]
+    )
+    projections = pd.DataFrame(
+        [
+            {
+                "team_id": "1",
+                "team": "Alpha",
+                "expected_regular_wins": 0.75,
+                "expected_regular_points": 0.75,
+                "expected_points_before_playoff": 1.25,
+                "expected_fantasy_points": 1.5,
+            },
+            {
+                "team_id": "2",
+                "team": "Beta",
+                "expected_regular_wins": 0.25,
+                "expected_regular_points": 0.25,
+                "expected_points_before_playoff": 0.5,
+                "expected_fantasy_points": 0.75,
+            },
+        ]
+    )
+
+    updated = update_live_projections(games, probabilities, projections).set_index(
+        "team_id"
+    )
+
+    assert updated.loc["1", "expected_regular_points"] == 0.0
+    assert updated.loc["1", "expected_fantasy_points"] == 0.75
+    assert updated.loc["2", "expected_regular_points"] == 1.0
+    assert updated.loc["2", "expected_fantasy_points"] == 1.5

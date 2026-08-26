@@ -21,6 +21,68 @@ def _manager_for_pick(pick_number: int, managers: int) -> int:
     return offset + 1 if round_index % 2 == 0 else managers - offset
 
 
+def update_live_projections(
+    games: pd.DataFrame,
+    game_probabilities: pd.DataFrame,
+    projections: pd.DataFrame,
+) -> pd.DataFrame:
+    """Replace completed-game probabilities with outcomes and re-aggregate EV."""
+    probabilities = game_probabilities.copy()
+    probabilities["game_id"] = probabilities["game_id"].astype(str)
+    probabilities["home_id"] = probabilities["home_id"].astype(str)
+    probabilities["away_id"] = probabilities["away_id"].astype(str)
+
+    results = games.copy()
+    results["game_id"] = results["game_id"].astype(str)
+    results = results[
+        results["completed"].astype(bool)
+        & results["home_points"].notna()
+        & results["away_points"].notna()
+    ][["game_id", "home_points", "away_points"]]
+    probabilities = probabilities.merge(
+        results, on="game_id", how="left", validate="one_to_one"
+    )
+    if "away_win_probability" not in probabilities:
+        probabilities["away_win_probability"] = (
+            1.0 - probabilities["home_win_probability"]
+        )
+    completed = probabilities["home_points"].notna()
+    probabilities.loc[completed, "home_win_probability"] = (
+        probabilities.loc[completed, "home_points"]
+        > probabilities.loc[completed, "away_points"]
+    ).astype(float)
+    probabilities.loc[completed, "away_win_probability"] = (
+        probabilities.loc[completed, "away_points"]
+        > probabilities.loc[completed, "home_points"]
+    ).astype(float)
+    tied = completed & probabilities["home_points"].eq(probabilities["away_points"])
+    probabilities.loc[tied, "home_win_probability"] = 0.0
+    probabilities.loc[tied, "away_win_probability"] = 0.0
+
+    home = probabilities.groupby("home_id")["home_win_probability"].sum()
+    away = probabilities.groupby("away_id")["away_win_probability"].sum()
+    expected = home.add(away, fill_value=0.0)
+
+    frame = projections.copy()
+    frame["team_id"] = frame["team_id"].astype(str)
+    frame["live_expected_regular_points"] = frame["team_id"].map(expected)
+    frame["live_expected_regular_points"] = frame[
+        "live_expected_regular_points"
+    ].fillna(frame["expected_regular_points"])
+    delta = (
+        frame["live_expected_regular_points"] - frame["expected_regular_points"]
+    )
+    frame["expected_regular_wins"] = frame["live_expected_regular_points"]
+    frame["expected_regular_points"] = frame.pop("live_expected_regular_points")
+    frame["expected_points_before_playoff"] += delta
+    frame["expected_fantasy_points"] += delta
+    frame = frame.sort_values(
+        ["expected_fantasy_points", "team"], ascending=[False, True]
+    ).reset_index(drop=True)
+    frame["overall_rank"] = frame.index + 1
+    return frame
+
+
 def build_scoreboard(
     games: pd.DataFrame,
     teams: pd.DataFrame,
@@ -137,11 +199,11 @@ def build_scoreboard(
                 "scoringWins": int(sum(categories.values()) - categories["non_playoff_bowl_win"]),
                 "categories": categories,
                 "nextGame": next_game,
-                "preseasonExpectedPoints": float(projection.get("expected_fantasy_points", 0.0)),
+                "projectedExpectedPoints": float(projection.get("expected_fantasy_points", 0.0)),
                 "expectedRegularPoints": float(projection.get("expected_regular_points", 0.0)),
                 "expectedConferencePoints": float(projection.get("expected_conference_title_points", 0.0)),
                 "expectedPlayoffPoints": float(projection.get("expected_playoff_points", 0.0)),
-                "preseasonRank": int(projection.get("overall_rank", 0) or 0),
+                "projectedRank": int(projection.get("overall_rank", 0) or 0),
                 "playoffProbability": float(projection.get("playoff_probability", 0.0)),
             }
         )
@@ -157,13 +219,13 @@ def build_scoreboard(
                 "wins": sum(team["wins"] for team in roster),
                 "losses": sum(team["losses"] for team in roster),
                 "ties": sum(team["ties"] for team in roster),
-                "preseasonExpectedPoints": sum(team["preseasonExpectedPoints"] for team in roster),
+                "projectedExpectedPoints": sum(team["projectedExpectedPoints"] for team in roster),
                 "rosterCount": len(roster),
                 "teams": roster,
             }
         )
     managers.sort(
-        key=lambda row: (-row["fantasyPoints"], -row["wins"], -row["preseasonExpectedPoints"], row["slot"])
+        key=lambda row: (-row["fantasyPoints"], -row["wins"], -row["projectedExpectedPoints"], row["slot"])
     )
     previous_points: float | None = None
     previous_rank = 0

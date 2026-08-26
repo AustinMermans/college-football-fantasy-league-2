@@ -1,6 +1,6 @@
 # 2026 College Football Fantasy Draft Report
 
-Generated 2026-08-26T00:49:07.802970+00:00 from 892 known
+Generated 2026-08-26T04:29:16.873914+00:00 from 892 known
 regular-season games and 20,000 season simulations.
 
 ## Scoring used
@@ -11,7 +11,7 @@ ties score zero. Non-CFP bowl wins are excluded.
 ## Selected game model
 
 `score_logit` was selected by expanding-window preseason mean log loss
-(`0.5490`). Lower log loss is better because the draft
+(`0.5424`). Lower log loss is better because the draft
 decision uses win probabilities, not only winner accuracy. Every matchup in a
 test season is frozen at information available before that season begins.
 
@@ -26,19 +26,19 @@ performance benchmark but is not presented as a frozen-preseason backtest.
 For the final forecast, the score probability receives weight
 `0%` and current ESPN FPI receives
 weight `100%`. The weight and
-`9.68`-point logistic scale minimize
+`9.44`-point logistic scale minimize
 RMSE against current ESPN projected wins for
 `108` teams whose FPI
 totals do not imply postseason games. The resulting win-total RMSE is
-`0.106`. Both component probabilities
+`0.093`. Both component probabilities
 remain in the game-level CSV.
 
 ## Factor study
 
 |   rank | model         |   seasons |   games |   mean_log_loss |   mean_brier |   mean_accuracy |   mean_roc_auc |   worst_log_loss |
 |-------:|:--------------|----------:|--------:|----------------:|-------------:|----------------:|---------------:|-----------------:|
-|      1 | score_logit   |         8 |    6701 |          0.549  |       0.1878 |          0.7022 |         0.7633 |           0.5865 |
-|      2 | score_boost   |         8 |    6701 |          0.5587 |       0.1917 |          0.6931 |         0.7515 |           0.5933 |
+|      1 | score_logit   |         8 |    6701 |          0.5424 |       0.1853 |          0.7052 |         0.77   |           0.5732 |
+|      2 | score_boost   |         8 |    6701 |          0.5446 |       0.1862 |          0.7038 |         0.7682 |           0.5845 |
 |      3 | elo_logit     |         8 |    6701 |          0.5864 |       0.2009 |          0.6885 |         0.7183 |           0.6144 |
 |      4 | home_baseline |         8 |    6701 |          0.6594 |       0.2333 |          0.6294 |         0.5    |           0.68   |
 
@@ -49,17 +49,15 @@ At every step, the selected feature must beat the 95th percentile gain from 100
 independent random control features. The first rejected row is the stopping
 point; unselected candidates at that step are retained in `feature_screen.csv`.
 
-|   step | feature              |   baseline_auc |   auc_with_feature |   delta_auc |   random_delta_auc_mean |   random_delta_auc_p95 | accepted   |
-|-------:|:---------------------|---------------:|-------------------:|------------:|------------------------:|-----------------------:|:-----------|
-|      1 | long_margin_diff     |        0.5     |            0.72143 |     0.22143 |                -0.00383 |                0.00745 | True       |
-|      2 | fbs_status_diff      |        0.72143 |            0.74957 |     0.02814 |                -8e-05   |                0.0002  | True       |
-|      3 | rating_diff          |        0.74957 |            0.75346 |     0.00389 |                -8e-05   |                0.00015 | True       |
-|      4 | long_win_diff        |        0.75346 |            0.75829 |     0.00483 |                -7e-05   |                0.00015 | True       |
-|      5 | rating_momentum_diff |        0.75829 |            0.76316 |     0.00487 |                -6e-05   |                0.00025 | True       |
-|      6 | home_field           |        0.76316 |            0.76374 |     0.00057 |                -5e-05   |                0.00015 | True       |
-|      7 | win_form_diff        |        0.76374 |            0.76398 |     0.00024 |                -4e-05   |                0.00018 | True       |
-|      8 | margin_form_diff     |        0.76398 |            0.76428 |     0.0003  |                -7e-05   |                0.00015 | True       |
-|      9 | history_depth_diff   |        0.76428 |            0.76276 |    -0.00152 |                -7e-05   |                0.0002  | False      |
+|   step | feature               |   baseline_auc |   auc_with_feature |   delta_auc |   random_delta_auc_mean |   random_delta_auc_p95 | accepted   |
+|-------:|:----------------------|---------------:|-------------------:|------------:|------------------------:|-----------------------:|:-----------|
+|      1 | long_margin_diff      |        0.5     |            0.72143 |     0.22143 |                -0.00383 |                0.00745 | True       |
+|      2 | talent_composite_diff |        0.72143 |            0.75882 |     0.03739 |                -8e-05   |                0.0002  | True       |
+|      3 | net_adj_epa_diff      |        0.75882 |            0.76482 |     0.006   |                -6e-05   |                0.00014 | True       |
+|      4 | fbs_status_diff       |        0.76482 |            0.7701  |     0.00528 |                -5e-05   |                0.00014 | True       |
+|      5 | blue_chip_ratio_diff  |        0.7701  |            0.77059 |     0.00049 |                -5e-05   |                0.00022 | True       |
+|      6 | home_field            |        0.77059 |            0.77103 |     0.00044 |                -5e-05   |                0.00014 | True       |
+|      7 | margin_form_diff      |        0.77103 |            0.77115 |     0.00012 |                -6e-05   |                0.00016 | False      |
 
 ## Probability calibration study
 
@@ -71,12 +69,12 @@ Brier decomposition.
 
 |   rank | method      |   mean_log_loss |   mean_brier |   mean_roc_auc |   mean_calibration_intercept |   mean_calibration_slope |   mean_ici |   mean_e50 |   mean_e90 |   mean_emax |   mean_murphy_miscalibration |   mean_murphy_discrimination |
 |-------:|:------------|----------------:|-------------:|---------------:|-----------------------------:|-------------------------:|-----------:|-----------:|-----------:|------------:|-----------------------------:|-----------------------------:|
-|      1 | beta        |         0.5487  |      0.18767 |        0.76335 |                      0.04672 |                  1.00718 |    0.02387 |    0.02041 |    0.04654 |     0.07195 |                      0.00657 |                      0.05184 |
-|      2 | identity    |         0.54898 |      0.18776 |        0.76335 |                      0.05508 |                  0.97305 |    0.02373 |    0.01953 |    0.04928 |     0.07575 |                      0.00667 |                      0.05184 |
-|      3 | intercept   |         0.54907 |      0.18779 |        0.76335 |                      0.05718 |                  0.97306 |    0.02416 |    0.02    |    0.04941 |     0.0759  |                      0.0067  |                      0.05184 |
-|      4 | platt       |         0.54914 |      0.18772 |        0.76335 |                      0.04552 |                  1.0058  |    0.02436 |    0.0211  |    0.04812 |     0.07428 |                      0.00662 |                      0.05184 |
-|      5 | temperature |         0.54921 |      0.18775 |        0.76335 |                      0.05509 |                  1.00253 |    0.02495 |    0.02153 |    0.04977 |     0.07561 |                      0.00666 |                      0.05184 |
-|      6 | isotonic    |         0.55239 |      0.18849 |        0.76207 |                      0.06421 |                  0.95162 |    0.02389 |    0.02123 |    0.04534 |     0.08584 |                      0.00485 |                      0.04929 |
+|      1 | beta        |         0.54185 |      0.18498 |         0.77   |                      0.0512  |                  1.01881 |    0.02306 |    0.02153 |    0.04269 |     0.07028 |                      0.00625 |                      0.05421 |
+|      2 | platt       |         0.54234 |      0.18505 |         0.77   |                      0.04781 |                  1.01678 |    0.02389 |    0.02174 |    0.04463 |     0.07369 |                      0.00632 |                      0.05421 |
+|      3 | identity    |         0.54243 |      0.18527 |         0.77   |                      0.07251 |                  0.9543  |    0.02526 |    0.02157 |    0.05161 |     0.08402 |                      0.00655 |                      0.05421 |
+|      4 | intercept   |         0.54247 |      0.18529 |         0.77   |                      0.06908 |                  0.95429 |    0.02605 |    0.0225  |    0.05086 |     0.08367 |                      0.00657 |                      0.05421 |
+|      5 | temperature |         0.54256 |      0.18514 |         0.77   |                      0.07252 |                  1.00947 |    0.02459 |    0.02142 |    0.04959 |     0.0773  |                      0.00641 |                      0.05421 |
+|      6 | isotonic    |         0.54353 |      0.18521 |         0.7698 |                      0.06476 |                  0.98207 |    0.02309 |    0.02137 |    0.04175 |     0.07291 |                      0.00401 |                      0.05173 |
 
 Archived updated-pregame FPI was run through the same calibration contest.
 Identity wins on log loss, so no beta, Platt, or isotonic map is layered onto
@@ -95,19 +93,42 @@ FPI. This is an external diagnostic rather than a frozen-preseason validation.
 
 | model                             |   seasons |   games |   mean_log_loss |   mean_brier |   mean_accuracy |   mean_roc_auc |
 |:----------------------------------|----------:|--------:|----------------:|-------------:|----------------:|---------------:|
-| nested_updated_fpi_blend          |         8 |    6697 |          0.4796 |       0.16   |          0.7557 |         0.8315 |
+| nested_updated_fpi_blend          |         8 |    6697 |          0.4794 |       0.16   |          0.7544 |         0.8316 |
 | updated_pregame_fpi               |         8 |    6697 |          0.4796 |       0.1601 |          0.7553 |         0.8314 |
-| calibrated_frozen_preseason_score |         8 |    6697 |          0.5487 |       0.1877 |          0.7019 |         0.7632 |
+| calibrated_frozen_preseason_score |         8 |    6697 |          0.5419 |       0.185  |          0.7041 |         0.7699 |
+
+## Betting-market consensus
+
+For games with a published line, the deployed probability combines the FPI
+logit and home-team point spread in a regularized logistic regression. The
+market layer uses an expanding window: the 2024 test model trains on 2023, and
+the 2025 test model trains on 2023-24. Games without a line fall back to FPI.
+Market lines are not frozen-preseason information; this layer is for the daily
+live forecast.
+
+Across 1,830 covered 2024-25 games, log
+loss improves from `0.5571` for the enhanced
+frozen-preseason score model and `0.4864` for FPI
+to `0.4747`. Relative to the 50/50 log-loss
+baseline, that is a `60.5%` increase
+in predictive skill versus the score model. This percentage is skill lift, not
+a claim of the same percentage reduction in raw log loss.
+
+| model                           |   seasons |   games |   mean_log_loss |   mean_brier |   mean_accuracy |   mean_roc_auc |
+|:--------------------------------|----------:|--------:|----------------:|-------------:|----------------:|---------------:|
+| fpi_market_consensus            |         2 |    1830 |          0.4747 |       0.1597 |          0.7551 |         0.833  |
+| updated_pregame_fpi             |         2 |    1830 |          0.4864 |       0.164  |          0.7442 |         0.8231 |
+| enhanced_frozen_preseason_score |         2 |    1830 |          0.5571 |       0.192  |          0.6906 |         0.7485 |
 
 ## Live draft optimizer
 
 The browser draft room evaluates candidate teams against the full joint
-`20,000`-season fantasy-point sample matrix. For each of the 30 highest-ranked
-candidates expected to be available at our next snake pick, it completes all 12
-rosters in board order and reports fractional first-place probability, expected
-finish, expected roster points, and expected margin. The default recommendation
-maximizes first-place probability; expected points is an optional alternative
-objective.
+`20,000`-season fantasy-point sample matrix. For each of the 30
+highest-ranked candidates expected to be available at our next snake pick, it
+completes all 12 rosters in board order and reports fractional first-place
+probability, expected finish, expected roster points, and expected margin. The
+default recommendation maximizes first-place probability; expected points is an
+optional alternative objective.
 
 Head-to-head games, conference-title competition, and CFP bracket collisions
 are already represented in the joint samples. Same-conference count and average
@@ -119,31 +140,31 @@ replaced as actual selections are recorded.
 
 |   overall_rank | team          | conference    |   expected_fantasy_points |   expected_regular_wins |   expected_playoff_points |   playoff_rank_lift |   playoff_probability |   schedule_difficulty_rank |
 |---------------:|:--------------|:--------------|--------------------------:|------------------------:|--------------------------:|--------------------:|----------------------:|---------------------------:|
-|              1 | Notre Dame    | FBS Indep.    |                    11.916 |                  10.676 |                     1.24  |                   1 |                 0.875 |                         61 |
-|              2 | Texas Tech    | Big 12        |                    11.665 |                  10.341 |                     0.747 |                  -1 |                 0.793 |                         68 |
-|              3 | Ohio State    | Big Ten       |                    11.338 |                   9.777 |                     1.194 |                   2 |                 0.742 |                         17 |
-|              4 | Miami         | ACC           |                    11.283 |                   9.903 |                     0.812 |                  -1 |                 0.752 |                         48 |
-|              5 | Oregon        | Big Ten       |                    11.237 |                   9.946 |                     0.997 |                  -1 |                 0.744 |                         20 |
-|              6 | Indiana       | Big Ten       |                    10.911 |                   9.886 |                     0.812 |                   0 |                 0.68  |                         35 |
-|              7 | Georgia       | SEC           |                    10.883 |                   9.719 |                     0.856 |                   0 |                 0.66  |                         15 |
-|              8 | Texas         | SEC           |                    10.688 |                   9.407 |                     0.952 |                   0 |                 0.624 |                          2 |
-|              9 | Penn State    | Big Ten       |                     9.176 |                   8.926 |                     0.209 |                   1 |                 0.303 |                         67 |
-|             10 | UNLV          | Mountain West |                     9.166 |                   8.658 |                     0.089 |                  -1 |                 0.297 |                        120 |
-|             11 | Alabama       | SEC           |                     8.949 |                   8.512 |                     0.336 |                   1 |                 0.321 |                          7 |
-|             12 | BYU           | Big 12        |                     8.877 |                   8.505 |                     0.205 |                  -1 |                 0.309 |                         49 |
-|             13 | LSU           | SEC           |                     8.748 |                   8.364 |                     0.297 |                   1 |                 0.278 |                         11 |
-|             14 | Texas A&M     | SEC           |                     8.572 |                   8.243 |                     0.262 |                   3 |                 0.242 |                         10 |
-|             15 | Toledo        | MAC           |                     8.555 |                   8.198 |                     0.034 |                  -2 |                 0.158 |                        132 |
-|             16 | South Florida | American      |                     8.479 |                   8.298 |                     0.038 |                  -1 |                 0.15  |                        115 |
-|             17 | USC           | Big Ten       |                     8.457 |                   8.226 |                     0.195 |                   2 |                 0.212 |                         26 |
-|             18 | SMU           | ACC           |                     8.413 |                   8.187 |                     0.12  |                   0 |                 0.201 |                         56 |
-|             19 | Tulane        | American      |                     8.388 |                   8.065 |                     0.058 |                  -3 |                 0.181 |                         89 |
-|             20 | Clemson       | ACC           |                     8.367 |                   8.117 |                     0.149 |                   1 |                 0.212 |                         33 |
-|             21 | James Madison | Sun Belt      |                     8.288 |                   7.993 |                     0.031 |                  -1 |                 0.145 |                        113 |
-|             22 | East Carolina | American      |                     8.105 |                   7.892 |                     0.027 |                   0 |                 0.108 |                         96 |
-|             23 | Navy          | American      |                     8.037 |                   7.827 |                     0.028 |                   0 |                 0.111 |                         88 |
-|             24 | Hawai'i       | Mountain West |                     8.013 |                   7.763 |                     0.023 |                   0 |                 0.097 |                        125 |
-|             25 | Michigan      | Big Ten       |                     7.949 |                   7.806 |                     0.117 |                   1 |                 0.134 |                         18 |
+|              1 | Notre Dame    | FBS Indep.    |                    12.143 |                  10.871 |                     1.271 |                   1 |                 0.912 |                         61 |
+|              2 | Texas Tech    | Big 12        |                    11.828 |                  10.464 |                     0.76  |                  -1 |                 0.823 |                         68 |
+|              3 | Miami         | ACC           |                    11.505 |                  10.044 |                     0.855 |                   0 |                 0.795 |                         48 |
+|              4 | Oregon        | Big Ten       |                    11.44  |                  10.089 |                     1.044 |                   0 |                 0.781 |                         20 |
+|              5 | Ohio State    | Big Ten       |                    11.347 |                   9.787 |                     1.201 |                   2 |                 0.741 |                         17 |
+|              6 | Indiana       | Big Ten       |                    11.125 |                  10.042 |                     0.855 |                  -1 |                 0.727 |                         35 |
+|              7 | Georgia       | SEC           |                    11.11  |                   9.877 |                     0.9   |                  -1 |                 0.7   |                         15 |
+|              8 | Texas         | SEC           |                    10.54  |                   9.323 |                     0.908 |                   0 |                 0.596 |                          2 |
+|              9 | UNLV          | Mountain West |                     9.225 |                   8.711 |                     0.089 |                   0 |                 0.305 |                        120 |
+|             10 | Penn State    | Big Ten       |                     9.222 |                   8.982 |                     0.201 |                   0 |                 0.306 |                         67 |
+|             11 | Alabama       | SEC           |                     9.042 |                   8.597 |                     0.345 |                   0 |                 0.331 |                          7 |
+|             12 | LSU           | SEC           |                     8.848 |                   8.454 |                     0.309 |                   1 |                 0.288 |                         11 |
+|             13 | BYU           | Big 12        |                     8.727 |                   8.397 |                     0.178 |                  -1 |                 0.28  |                         49 |
+|             14 | Texas A&M     | SEC           |                     8.594 |                   8.277 |                     0.253 |                   2 |                 0.241 |                         10 |
+|             15 | South Florida | American      |                     8.517 |                   8.336 |                     0.038 |                  -1 |                 0.152 |                        115 |
+|             16 | Toledo        | MAC           |                     8.467 |                   8.11  |                     0.028 |                  -1 |                 0.14  |                        132 |
+|             17 | USC           | Big Ten       |                     8.366 |                   8.172 |                     0.164 |                   3 |                 0.191 |                         26 |
+|             18 | SMU           | ACC           |                     8.356 |                   8.15  |                     0.107 |                   0 |                 0.189 |                         56 |
+|             19 | James Madison | Sun Belt      |                     8.312 |                   8.01  |                     0.031 |                  -2 |                 0.148 |                        113 |
+|             20 | Clemson       | ACC           |                     8.295 |                   8.072 |                     0.132 |                   1 |                 0.195 |                         33 |
+|             21 | Tulane        | American      |                     8.288 |                   7.974 |                     0.049 |                  -2 |                 0.166 |                         89 |
+|             22 | East Carolina | American      |                     8.098 |                   7.885 |                     0.024 |                   0 |                 0.104 |                         96 |
+|             23 | Utah          | Big 12        |                     8.088 |                   7.941 |                     0.076 |                   0 |                 0.154 |                         59 |
+|             24 | Michigan      | Big Ten       |                     8.04  |                   7.905 |                     0.114 |                   2 |                 0.136 |                         18 |
+|             25 | Hawai'i       | Mountain West |                     7.989 |                   7.743 |                     0.019 |                  -1 |                 0.091 |                        125 |
 
 ## Reading schedule difficulty
 

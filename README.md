@@ -49,8 +49,10 @@ Open `http://127.0.0.1:8765`.
 
 `results/live_picks.csv` contains the recorded draft. The daily scoreboard uses
 ESPN's public team schedule endpoints for completed results and upcoming games.
-`results/team_projections_2026.csv` contains the preseason schedule-adjusted
-expected values used as context in the roster and standings views.
+`results/team_projections_2026.csv` contains the schedule-adjusted baseline.
+The daily build replaces completed-game forecasts with results and updates
+covered future games from the betting market before publishing projected
+points. Uncovered games retain their FPI probability.
 
 The underlying forecast prices every known matchup using both teams' pregame
 strength and venue, then simulates conference championships and the 12-team

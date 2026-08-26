@@ -1,0 +1,28 @@
+{
+  "coefficients": [
+    0.6114082249987821,
+    1.2709346037474165
+  ],
+  "evaluation_games": 1830.0,
+  "features": [
+    "fpi_logit",
+    "spread_edge"
+  ],
+  "fpi_log_loss": 0.4864195070678684,
+  "intercept": 0.9417021779104571,
+  "market_log_loss": 0.4746898932395469,
+  "market_predictive_skill": 0.31516724506319416,
+  "mean": [
+    0.8549092092948127,
+    7.358751846381093
+  ],
+  "scale": [
+    1.7318964879201826,
+    15.749442823621415
+  ],
+  "score_log_loss": 0.5570611466420821,
+  "score_predictive_skill": 0.1963306462675486,
+  "skill_improvement_vs_score": 0.6052880742505253,
+  "training_games": 2708,
+  "training_start_season": 2023
+}

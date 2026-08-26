@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 import tomllib
 from pathlib import Path
@@ -11,8 +12,17 @@ import pandas as pd
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
-from cfb_fantasy.data import fetch_target_season  # noqa: E402
-from cfb_fantasy.scoreboard import build_scoreboard, write_scoreboard_data  # noqa: E402
+from cfb_fantasy.data import (  # noqa: E402
+    fetch_betting,
+    fetch_target_season,
+    load_betting,
+)
+from cfb_fantasy.market import MarketConsensus, apply_market_consensus  # noqa: E402
+from cfb_fantasy.scoreboard import (  # noqa: E402
+    build_scoreboard,
+    update_live_projections,
+    write_scoreboard_data,
+)
 
 
 def main() -> None:
@@ -39,6 +49,26 @@ def main() -> None:
     projections = pd.read_csv(
         PROJECT_ROOT / "results" / f"team_projections_{season}.csv"
     )
+    probabilities = pd.read_csv(
+        PROJECT_ROOT / "results" / f"game_probabilities_{season}.csv"
+    )
+    if args.refresh:
+        betting_paths = fetch_betting(
+            PROJECT_ROOT / ".cache" / "cfb_fantasy",
+            season,
+            season,
+            refresh=True,
+        )
+        betting = load_betting(betting_paths)
+        market_summary = json.loads(
+            (PROJECT_ROOT / "results" / "market_model.json").read_text()
+        )
+        probabilities = apply_market_consensus(
+            probabilities,
+            betting,
+            MarketConsensus.from_summary(market_summary),
+        )
+    projections = update_live_projections(games, probabilities, projections)
     payload = build_scoreboard(
         games,
         teams,

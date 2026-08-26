@@ -16,6 +16,8 @@ def write_model_card(
     fpi_calibration_study: pd.DataFrame,
     ensemble_backtest: pd.DataFrame,
     ensemble_calibration: dict[str, float],
+    market_backtest: pd.DataFrame,
+    market_summary: dict[str, float],
     *,
     season: int,
     simulations: int,
@@ -114,6 +116,21 @@ def write_model_card(
     for column in ["mean_log_loss", "mean_brier", "mean_accuracy", "mean_roc_auc"]:
         ensemble[column] = ensemble[column].map(lambda value: f"{value:.4f}")
     ensemble_table = ensemble.to_markdown(index=False)
+    market = (
+        market_backtest.groupby("model", as_index=False)
+        .agg(
+            seasons=("test_season", "count"),
+            games=("games", "sum"),
+            mean_log_loss=("log_loss", "mean"),
+            mean_brier=("brier", "mean"),
+            mean_accuracy=("accuracy", "mean"),
+            mean_roc_auc=("roc_auc", "mean"),
+        )
+        .sort_values("mean_log_loss")
+    )
+    for column in ["mean_log_loss", "mean_brier", "mean_accuracy", "mean_roc_auc"]:
+        market[column] = market[column].map(lambda value: f"{value:.4f}")
+    market_table = market.to_markdown(index=False)
     text = f"""# {season} College Football Fantasy Draft Report
 
 Generated {datetime.now(timezone.utc).isoformat()} from {schedule_games} known
@@ -181,6 +198,25 @@ FPI. This is an external diagnostic rather than a frozen-preseason validation.
 ## Updated-FPI benchmark
 
 {ensemble_table}
+
+## Betting-market consensus
+
+For games with a published line, the deployed probability combines the FPI
+logit and home-team point spread in a regularized logistic regression. The
+market layer uses an expanding window: the 2024 test model trains on 2023, and
+the 2025 test model trains on 2023-24. Games without a line fall back to FPI.
+Market lines are not frozen-preseason information; this layer is for the daily
+live forecast.
+
+Across {int(market_summary['evaluation_games']):,} covered 2024-25 games, log
+loss improves from `{market_summary['score_log_loss']:.4f}` for the enhanced
+frozen-preseason score model and `{market_summary['fpi_log_loss']:.4f}` for FPI
+to `{market_summary['market_log_loss']:.4f}`. Relative to the 50/50 log-loss
+baseline, that is a `{market_summary['skill_improvement_vs_score']:.1%}` increase
+in predictive skill versus the score model. This percentage is skill lift, not
+a claim of the same percentage reduction in raw log loss.
+
+{market_table}
 
 ## Live draft optimizer
 

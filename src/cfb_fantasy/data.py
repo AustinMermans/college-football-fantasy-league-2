@@ -20,6 +20,18 @@ HISTORICAL_FPI_URL = (
     "https://github.com/sportsdataverse/sportsdataverse-data/releases/download/"
     "espn_cfb_power_index/power_index_{season}.csv"
 )
+TEAM_TALENT_URL = (
+    "https://github.com/sportsdataverse/sportsdataverse-data/releases/download/"
+    "cfb_team_talent/cfb_team_talent_{season}.parquet"
+)
+TEAM_SUMMARY_URL = (
+    "https://github.com/sportsdataverse/sportsdataverse-data/releases/download/"
+    "espn_cfb_team_summaries/cfb_team_summaries_{season}.parquet"
+)
+BETTING_URL = (
+    "https://github.com/sportsdataverse/sportsdataverse-data/releases/download/"
+    "espn_cfb_betting/betting_{season}.parquet"
+)
 ESPN_STANDINGS_URL = (
     "https://site.api.espn.com/apis/v2/sports/football/college-football/standings"
     "?region=us&lang=en&contentorigin=espn&isqualified=true&type=0&level=3"
@@ -111,6 +123,150 @@ def fetch_historical_fpi(
             _download(HISTORICAL_FPI_URL.format(season=season), destination)
         paths.append(destination)
     return paths
+
+
+def _fetch_season_assets(
+    raw_dir: Path,
+    start_season: int,
+    end_season: int,
+    *,
+    subdirectory: str,
+    filename: str,
+    url: str,
+    refresh: bool,
+) -> list[Path]:
+    paths: list[Path] = []
+    for season in range(start_season, end_season + 1):
+        destination = raw_dir / "sportsdataverse" / subdirectory / filename.format(
+            season=season
+        )
+        if refresh or not destination.exists():
+            _download(url.format(season=season), destination)
+        paths.append(destination)
+    return paths
+
+
+def fetch_team_talent(
+    raw_dir: Path, start_season: int, end_season: int, *, refresh: bool = False
+) -> list[Path]:
+    return _fetch_season_assets(
+        raw_dir,
+        start_season,
+        end_season,
+        subdirectory="team_talent",
+        filename="talent_{season}.parquet",
+        url=TEAM_TALENT_URL,
+        refresh=refresh,
+    )
+
+
+def fetch_team_summaries(
+    raw_dir: Path, start_season: int, end_season: int, *, refresh: bool = False
+) -> list[Path]:
+    return _fetch_season_assets(
+        raw_dir,
+        start_season,
+        end_season,
+        subdirectory="team_summaries",
+        filename="team_summary_{season}.parquet",
+        url=TEAM_SUMMARY_URL,
+        refresh=refresh,
+    )
+
+
+def fetch_betting(
+    raw_dir: Path, start_season: int, end_season: int, *, refresh: bool = False
+) -> list[Path]:
+    return _fetch_season_assets(
+        raw_dir,
+        start_season,
+        end_season,
+        subdirectory="betting",
+        filename="betting_{season}.parquet",
+        url=BETTING_URL,
+        refresh=refresh,
+    )
+
+
+def load_team_talent(paths: Iterable[Path]) -> pd.DataFrame:
+    columns = [
+        "season",
+        "team_id",
+        "talent_composite",
+        "blue_chip_ratio",
+    ]
+    frames = [pd.read_parquet(path, columns=columns) for path in paths]
+    frame = pd.concat(frames, ignore_index=True)
+    frame["team_id"] = frame["team_id"].astype(str)
+    if frame.duplicated(["season", "team_id"]).any():
+        raise ValueError("team talent contains duplicate season-team rows")
+    return frame
+
+
+def load_team_summaries(paths: Iterable[Path]) -> pd.DataFrame:
+    columns = ["season", "team_id", "net_adj_epa"]
+    frames = [pd.read_parquet(path, columns=columns) for path in paths]
+    frame = pd.concat(frames, ignore_index=True)
+    frame["team_id"] = frame["team_id"].astype(str)
+    if frame.duplicated(["season", "team_id"]).any():
+        raise ValueError("team summaries contain duplicate season-team rows")
+    return frame
+
+
+def load_betting(paths: Iterable[Path]) -> pd.DataFrame:
+    frames = [pd.read_parquet(path) for path in paths]
+    frame = pd.concat(frames, ignore_index=True)
+    frame["game_id"] = frame["game_id"].astype(str)
+    available = frame["game_spread_available"].astype(str).str.lower().eq("true")
+    frame = frame[available & frame["home_team_spread"].notna()].copy()
+    return frame.drop_duplicates("game_id", keep="last").reset_index(drop=True)
+
+
+def attach_preseason_context(
+    games: pd.DataFrame,
+    talent: pd.DataFrame,
+    prior_summaries: pd.DataFrame,
+) -> pd.DataFrame:
+    """Attach information published before each season to matchup rows."""
+    frame = games.copy()
+    if "season" not in frame:
+        raise ValueError("matchup frame needs season for preseason context")
+    talent_columns = ["talent_composite", "blue_chip_ratio"]
+    summaries = prior_summaries.copy()
+    summaries["season"] = summaries["season"].astype(int) + 1
+    for side in ("home", "away"):
+        team_column = f"{side}_id"
+        talent_side = talent.rename(
+            columns={
+                "team_id": team_column,
+                **{column: f"{side}_{column}" for column in talent_columns},
+            }
+        )
+        frame = frame.merge(
+            talent_side[["season", team_column, *[f"{side}_{c}" for c in talent_columns]]],
+            on=["season", team_column],
+            how="left",
+            validate="many_to_one",
+        )
+        summary_side = summaries.rename(
+            columns={"team_id": team_column, "net_adj_epa": f"{side}_net_adj_epa"}
+        )
+        frame = frame.merge(
+            summary_side[["season", team_column, f"{side}_net_adj_epa"]],
+            on=["season", team_column],
+            how="left",
+            validate="many_to_one",
+        )
+    frame["talent_composite_diff"] = (
+        frame["home_talent_composite"] - frame["away_talent_composite"]
+    )
+    frame["blue_chip_ratio_diff"] = (
+        frame["home_blue_chip_ratio"] - frame["away_blue_chip_ratio"]
+    )
+    frame["net_adj_epa_diff"] = (
+        frame["home_net_adj_epa"] - frame["away_net_adj_epa"]
+    )
+    return frame
 
 
 def attach_historical_fpi(

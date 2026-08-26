@@ -29,6 +29,7 @@ def _pairwise_probabilities(
     states: dict[str, TeamState],
     model: FittedGameModel,
     fpi_by_id: dict[str, float],
+    context_by_id: dict[str, dict[str, float]],
     *,
     fpi_weight: float,
     fpi_logistic_scale: float,
@@ -40,13 +41,19 @@ def _pairwise_probabilities(
     rows: list[dict[str, float]] = []
     for home_id in team_ids:
         for away_id in team_ids:
-            rows.append(
-                matchup_features(
-                    states.get(home_id, TeamState()),
-                    states.get(away_id, TeamState()),
-                    neutral=neutral,
-                )
+            row = matchup_features(
+                states.get(home_id, TeamState()),
+                states.get(away_id, TeamState()),
+                neutral=neutral,
             )
+            home_context = context_by_id.get(home_id, {})
+            away_context = context_by_id.get(away_id, {})
+            for column in ("talent_composite", "blue_chip_ratio", "net_adj_epa"):
+                row[f"{column}_diff"] = (
+                    home_context.get(column, np.nan)
+                    - away_context.get(column, np.nan)
+                )
+            rows.append(row)
     score_probabilities = model.predict_home(pd.DataFrame(rows))
     fpi_probabilities = []
     for home_id in team_ids:
@@ -208,6 +215,15 @@ def simulate_season(
         [states.get(team_id, TeamState()).rating for team_id in team_ids]
     )
     fpi_by_id = dict(zip(teams["team_id"].astype(str), teams["fpi"].astype(float)))
+    context_columns = ["talent_composite", "blue_chip_ratio", "net_adj_epa"]
+    context_by_id = {
+        str(row.team_id): {
+            column: float(getattr(row, column))
+            for column in context_columns
+            if column in teams and pd.notna(getattr(row, column))
+        }
+        for row in teams.itertuples(index=False)
+    }
     fpi_values = np.array([fpi_by_id[team_id] for team_id in team_ids])
     fpi_elo = 1500.0 + 10.0 * fpi_values
     ratings = (1.0 - fpi_weight) * score_ratings + fpi_weight * fpi_elo
@@ -234,6 +250,7 @@ def simulate_season(
         states,
         model,
         fpi_by_id,
+        context_by_id,
         fpi_weight=fpi_weight,
         fpi_logistic_scale=fpi_logistic_scale,
         fpi_home_advantage=fpi_home_advantage,
@@ -244,6 +261,7 @@ def simulate_season(
         states,
         model,
         fpi_by_id,
+        context_by_id,
         fpi_weight=fpi_weight,
         fpi_logistic_scale=fpi_logistic_scale,
         fpi_home_advantage=fpi_home_advantage,

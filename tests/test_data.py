@@ -2,13 +2,39 @@ import json
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from cfb_fantasy.data import (
+    attach_preseason_context,
     attach_historical_fpi,
     parse_espn_schedules,
     parse_fbs_teams,
     parse_fpi,
 )
+
+
+def test_attach_preseason_context_uses_current_talent_and_prior_epa():
+    games = pd.DataFrame(
+        [{"season": 2026, "home_id": "1", "away_id": "2"}]
+    )
+    talent = pd.DataFrame(
+        [
+            {"season": 2026, "team_id": "1", "talent_composite": 800.0, "blue_chip_ratio": 0.7},
+            {"season": 2026, "team_id": "2", "talent_composite": 600.0, "blue_chip_ratio": 0.3},
+        ]
+    )
+    summaries = pd.DataFrame(
+        [
+            {"season": 2025, "team_id": "1", "net_adj_epa": 0.2},
+            {"season": 2025, "team_id": "2", "net_adj_epa": -0.1},
+        ]
+    )
+
+    attached = attach_preseason_context(games, talent, summaries).iloc[0]
+
+    assert attached["talent_composite_diff"] == 200.0
+    assert attached["blue_chip_ratio_diff"] == pytest.approx(0.4)
+    assert attached["net_adj_epa_diff"] == pytest.approx(0.3)
 
 
 def test_parse_fbs_teams_recurses_through_divisions():

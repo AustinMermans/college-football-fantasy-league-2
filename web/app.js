@@ -62,7 +62,7 @@
     $("rosterStatus").textContent = `${manager.rosterCount} teams · draft slot ${manager.slot}`;
     $("fantasyPoints").textContent = formatNumber(manager.fantasyPoints);
     $("combinedRecord").textContent = formatRecord(manager);
-    $("preseasonEv").textContent = formatNumber(manager.preseasonExpectedPoints, 1);
+    $("projectedEv").textContent = formatNumber(manager.projectedExpectedPoints, 1);
     $("rosterCount").textContent = `${manager.rosterCount} / ${data.teamsPerManager}`;
     $("rosterHeading").textContent = `${manager.name}'s teams`;
     $("rosterPointTotal").textContent = `${formatNumber(manager.fantasyPoints)} PTS`;
@@ -152,7 +152,7 @@
       const count = document.createElement("td");
       count.textContent = `${manager.rosterCount} / ${data.teamsPerManager}`;
       const ev = document.createElement("td");
-      ev.textContent = formatNumber(manager.preseasonExpectedPoints, 1);
+      ev.textContent = formatNumber(manager.projectedExpectedPoints, 1);
       row.append(rank, managerCell, points, record, count, ev);
       body.append(row);
     });
@@ -161,7 +161,7 @@
   function renderTeamEv() {
     const teams = data.managers
       .flatMap((manager) => manager.teams)
-      .sort((a, b) => b.preseasonExpectedPoints - a.preseasonExpectedPoints || a.preseasonRank - b.preseasonRank);
+      .sort((a, b) => b.projectedExpectedPoints - a.projectedExpectedPoints || a.projectedRank - b.projectedRank);
     const body = $("teamEvBody");
     body.replaceChildren();
     teams.forEach((team, index) => {
@@ -184,7 +184,7 @@
       owner.textContent = team.manager;
       const total = document.createElement("td");
       total.className = "ev-total";
-      total.textContent = formatNumber(team.preseasonExpectedPoints, 2);
+      total.textContent = formatNumber(team.projectedExpectedPoints, 2);
       const regular = document.createElement("td");
       regular.className = "ev-component";
       regular.textContent = formatNumber(team.expectedRegularPoints, 2);
@@ -201,7 +201,7 @@
       row.append(rank, teamCell, owner, total, regular, conference, playoff, playoffChance, current);
       body.append(row);
     });
-    $("teamEvCount").textContent = `${teams.length} drafted teams · preseason model`;
+    $("teamEvCount").textContent = `${teams.length} drafted teams · live model`;
   }
 
   function renderDraftBoard() {

@@ -29,12 +29,13 @@ The model must produce:
 3. Simulation percentiles and playoff/conference-title probabilities.
 4. A value-ranked draft board and a 12-manager snake grid.
 5. Walk-forward backtests and a factor-ablation report.
-6. A live recommendation that maximizes first-place probability from the joint
+6. An expanding-window FPI-plus-market benchmark for games with available lines.
+7. A live recommendation that maximizes first-place probability from the joint
    season simulation when it is our turn.
-7. A static browser draft room that records the snake draft in order, separates
+8. A static browser draft room that records the snake draft in order, separates
    our roster from opponent picks, persists state locally, and recalculates the
    best available team for our next pick.
-8. When served through the local application, an atomic JSON state file and an
+9. When served through the local application, an atomic JSON state file and an
    append-only action journal that survive browser-data deletion and retain the
    manager assigned to every active pick.
 

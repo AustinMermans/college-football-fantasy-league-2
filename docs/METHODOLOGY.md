@@ -5,8 +5,10 @@
 Historical schedules and scores come from the public `cfbfastR-data` season
 CSVs. The target-season FBS membership, conference map, and schedules come from
 ESPN's public standings and team-schedule JSON feeds. ESPN's current preseason
-FPI supplies an all-team roster/recruiting-aware strength prior. Raw responses
-are cached under the monorepo's shared `Data/Raw/cfb_fantasy/` directory.
+FPI supplies an all-team roster/recruiting-aware strength prior. SportsDataverse
+adds team-talent composites, blue-chip ratios, prior-season opponent-adjusted
+EPA, and consensus betting lines. Raw responses are cached under the
+monorepo's shared `Data/Raw/cfb_fantasy/` directory.
 
 ## Preseason state
 
@@ -14,17 +16,10 @@ Historical games are processed in kickoff order to update each team's state.
 For model selection, however, every game in a test season uses one frozen state
 derived before that season begins. This matches the information available at a
 fantasy draft and prevents September results from improving predictions for
-October games in the same backtest. The recorded features are:
-
-- a margin-aware Elo rating difference;
-- exponentially weighted scoring-margin difference;
-- exponentially weighted win-rate difference;
-- longer-horizon margin and win form;
-- offseason rating momentum;
-- an explicit FBS-versus-FCS matchup indicator;
-- games of prior information;
-- home-field and neutral-site indicators; and
-- rest-day difference.
+October games in the same backtest. The production features are longer-horizon
+scoring-margin difference, current-season team-talent composite difference,
+prior-season opponent-adjusted EPA difference, FBS-versus-FCS status,
+current-season blue-chip-ratio difference, and home-field/neutral-site status.
 
 Only after those features are recorded does the state update with the result.
 At each offseason, Elo and short-run form are regressed toward the national
@@ -80,6 +75,15 @@ This consensus addresses the main limitation of a prior-score model: coaching,
 recruiting, and roster turnover between seasons. Calibration parameters and
 benchmark metrics are written to `results/ensemble_calibration.json` and
 `results/ensemble_backtest.csv`.
+
+## Live market consensus
+
+When a line is available, a regularized logistic model combines FPI log odds
+with the home-team point spread. It is tested with an expanding window using
+2023 as the first training season and 2024 as the first test season. This is a
+live forecasting layer rather than a frozen-preseason input. Games without a
+published line use FPI, and completed games are replaced with their realized
+0/1 result before the website recomputes regular-season expected points.
 
 ## Season simulation
 

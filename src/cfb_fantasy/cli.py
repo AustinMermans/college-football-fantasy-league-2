@@ -13,13 +13,20 @@ from .calibration import (
     walk_forward_probability_calibration_backtest,
 )
 from .data import (
+    attach_preseason_context,
     attach_historical_fpi,
     default_raw_dir,
+    fetch_betting,
     fetch_fpi,
     fetch_historical_fpi,
     fetch_historical_seasons,
     fetch_target_season,
+    fetch_team_summaries,
+    fetch_team_talent,
+    load_betting,
     load_historical_games,
+    load_team_summaries,
+    load_team_talent,
     write_snapshot,
 )
 from .draft import (
@@ -46,6 +53,7 @@ from .model import (
     walk_forward_backtest,
     walk_forward_feature_study,
 )
+from .market import apply_market_consensus, walk_forward_market_backtest
 from .report import write_model_card
 from .simulate import Scoring, simulate_season
 from .server import serve_draft_room
@@ -88,9 +96,35 @@ def run_pipeline(args: argparse.Namespace) -> None:
     historical_games = attach_historical_fpi(
         historical_games, historical_fpi_paths
     )
+    talent = load_team_talent(
+        fetch_team_talent(
+            raw_dir,
+            int(model_config["historical_start_season"]),
+            season,
+            refresh=args.refresh,
+        )
+    )
+    summaries = load_team_summaries(
+        fetch_team_summaries(
+            raw_dir,
+            int(model_config["historical_start_season"]),
+            season - 1,
+            refresh=args.refresh,
+        )
+    )
+    betting = load_betting(
+        fetch_betting(raw_dir, 2023, season, refresh=args.refresh)
+    )
     teams, schedule = fetch_target_season(raw_dir, season, refresh=args.refresh)
     fpi = fetch_fpi(raw_dir, season, refresh=args.refresh)
     teams = teams.merge(fpi, on="team_id", how="left", validate="one_to_one")
+    current_talent = talent[talent["season"].eq(season)].drop(columns="season")
+    current_summary = summaries[summaries["season"].eq(season - 1)][
+        ["team_id", "net_adj_epa"]
+    ]
+    teams = teams.merge(
+        current_talent, on="team_id", how="left", validate="one_to_one"
+    ).merge(current_summary, on="team_id", how="left", validate="one_to_one")
     if teams["fpi"].isna().any():
         missing = teams.loc[teams["fpi"].isna(), "team"].tolist()
         raise ValueError(f"FPI missing for current FBS teams: {missing}")
@@ -98,6 +132,7 @@ def run_pipeline(args: argparse.Namespace) -> None:
     write_snapshot(schedule, teams, derived_dir, season)
 
     features, end_states = build_preseason_features(historical_games)
+    features = attach_preseason_context(features, talent, summaries)
     features.to_csv(derived_dir / "preseason_features.csv", index=False)
     by_season, factor_study = walk_forward_backtest(
         features, int(model_config["first_backtest_season"])
@@ -119,6 +154,16 @@ def run_pipeline(args: argparse.Namespace) -> None:
             "production features do not match the random-control feature gate: "
             f"expected {accepted_features}, configured {FEATURE_COLUMNS}"
         )
+    market_backtest, market_oof, market_model, market_summary = (
+        walk_forward_market_backtest(features, betting)
+    )
+    market_backtest.to_csv(results_dir / "market_backtest.csv", index=False)
+    market_oof.to_csv(results_dir / "market_oof_predictions.csv", index=False)
+    market_payload = {**market_model.summary(), **market_summary}
+    (results_dir / "market_model.json").write_text(
+        json.dumps(market_payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
     selected_name = str(factor_study.iloc[0]["model"])
     selected_candidate = next(
         candidate for candidate in candidates() if candidate.name == selected_name
@@ -176,6 +221,7 @@ def run_pipeline(args: argparse.Namespace) -> None:
     fitted = fit_selected_model(features, factor_study, score_calibrator)
     states = preseason_states(end_states)
     game_features = schedule_feature_frame(schedule, states)
+    game_features = attach_preseason_context(game_features, talent, summaries)
     current_calibration = calibrate_current_ensemble(
         game_features,
         fitted,
@@ -197,6 +243,9 @@ def run_pipeline(args: argparse.Namespace) -> None:
         fpi_weight=fpi_weight,
         fpi_logistic_scale=fpi_logistic_scale,
         fpi_home_advantage=float(model_config["fpi_home_advantage"]),
+    )
+    game_probabilities = apply_market_consensus(
+        game_probabilities, betting, market_model
     )
     game_probabilities.to_csv(
         results_dir / f"game_probabilities_{season}.csv", index=False
@@ -267,6 +316,8 @@ def run_pipeline(args: argparse.Namespace) -> None:
         fpi_calibration_study,
         ensemble_backtest,
         ensemble_calibration,
+        market_backtest,
+        market_summary,
         season=season,
         simulations=int(args.simulations or model_config["simulations"]),
         schedule_games=len(schedule),
@@ -487,3 +538,6 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+    fetch_betting,
+    fetch_team_summaries,
+    fetch_team_talent,
