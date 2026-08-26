@@ -203,6 +203,12 @@ main { max-width: 1440px; margin: 0 auto; padding: 30px 24px 56px; }
 .standing-manager { display: flex; align-items: center; gap: 10px; font-weight: 800; }
 .slot-badge { width: 26px; height: 26px; display: grid; place-items: center; color: var(--muted); background: #edf0ed; border-radius: 4px; font-size: 10px; }
 .standing-points { color: var(--green); font-size: 17px; font-weight: 900; }
+.ev-team { display: flex; align-items: center; gap: 10px; min-width: 180px; font-weight: 800; }
+.ev-team img { width: 30px; height: 30px; object-fit: contain; }
+.ev-team span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ev-total { color: var(--green); font-size: 16px; font-weight: 900; }
+.ev-component { color: var(--muted); font-variant-numeric: tabular-nums; }
+.team-ev-table td, .team-ev-table th { white-space: nowrap; }
 
 .draft-board { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .draft-round { overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; box-shadow: var(--shadow); }
@@ -229,6 +235,8 @@ footer { max-width: 1440px; margin: 0 auto; padding: 18px 24px 28px; display: fl
   .select-wrap select { width: 145px; }
   .view-tabs { padding: 0 8px; gap: 0; }
   .view-tab { min-width: 0; flex: 1; padding: 0 4px; font-size: 11px; }
+  .view-tab { gap: 4px; }
+  .view-tab svg { width: 14px; }
   main { padding: 18px 12px 38px; }
   .roster-hero { min-height: 128px; padding: 20px; }
   .roster-hero h1 { font-size: 31px; }
@@ -245,6 +253,7 @@ footer { max-width: 1440px; margin: 0 auto; padding: 18px 24px 28px; display: fl
   .page-heading h1 { font-size: 34px; }
   .table-shell { overflow-x: auto; }
   .standings-table { min-width: 680px; }
+  .team-ev-table { min-width: 980px; }
   .draft-pick { grid-template-columns: 36px 110px minmax(0, 1fr); padding-inline: 10px; }
   footer { padding-inline: 16px; flex-direction: column; }
 }

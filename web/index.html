@@ -44,6 +44,9 @@
         <button class="view-tab" type="button" data-view="standings">
           <i data-lucide="list-ordered" aria-hidden="true"></i><span>Standings</span>
         </button>
+        <button class="view-tab" type="button" data-view="teamEv">
+          <i data-lucide="chart-no-axes-column" aria-hidden="true"></i><span>Team EV</span>
+        </button>
         <button class="view-tab" type="button" data-view="draft">
           <i data-lucide="layout-grid" aria-hidden="true"></i><span>Draft Board</span>
         </button>
@@ -123,6 +126,34 @@
                 </tr>
               </thead>
               <tbody id="standingsBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="teamEvView" class="page-view" hidden>
+          <header class="page-heading">
+            <div>
+              <p class="eyebrow">Model leaderboard</p>
+              <h1>Team Expected Value</h1>
+            </div>
+            <p id="teamEvCount" class="updated-stamp"></p>
+          </header>
+          <div class="table-shell">
+            <table class="standings-table team-ev-table">
+              <thead>
+                <tr>
+                  <th scope="col">Rank</th>
+                  <th scope="col">Team</th>
+                  <th scope="col">Owner</th>
+                  <th scope="col">Total EV</th>
+                  <th scope="col">Regular</th>
+                  <th scope="col">Conference</th>
+                  <th scope="col">Playoff</th>
+                  <th scope="col">CFP chance</th>
+                  <th scope="col">Current pts</th>
+                </tr>
+              </thead>
+              <tbody id="teamEvBody"></tbody>
             </table>
           </div>
         </section>

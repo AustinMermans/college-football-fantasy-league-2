@@ -138,6 +138,9 @@ def build_scoreboard(
                 "categories": categories,
                 "nextGame": next_game,
                 "preseasonExpectedPoints": float(projection.get("expected_fantasy_points", 0.0)),
+                "expectedRegularPoints": float(projection.get("expected_regular_points", 0.0)),
+                "expectedConferencePoints": float(projection.get("expected_conference_title_points", 0.0)),
+                "expectedPlayoffPoints": float(projection.get("expected_playoff_points", 0.0)),
                 "preseasonRank": int(projection.get("overall_rank", 0) or 0),
                 "playoffProbability": float(projection.get("playoff_probability", 0.0)),
             }

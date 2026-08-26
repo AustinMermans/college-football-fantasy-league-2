@@ -3,6 +3,8 @@
 A public roster board and live scoreboard for a 12-manager fantasy league that
 drafts college football teams instead of players.
 
+**Live site:** [austinmermans.github.io/college-football-fantasy](https://austinmermans.github.io/college-football-fantasy/)
+
 ## League scoring
 
 - 1 point per regular-season win
@@ -11,9 +13,10 @@ drafts college football teams instead of players.
 - 0 points for losses or ties
 - Ordinary bowl wins do not count
 
-The site includes a manager-relative roster view, league standings, each team's
-next scheduled game, and the complete ten-round snake draft ledger. It is
-read-only; the recorded roster file is the source of truth.
+The site includes a manager-relative roster view, league standings, a drafted
+team EV leaderboard with postseason decomposition, each team's next scheduled
+game, and the complete ten-round snake draft ledger. It is read-only; the
+recorded roster file is the source of truth.
 
 ## Daily score refresh
 

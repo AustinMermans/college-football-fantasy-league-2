@@ -70,5 +70,6 @@ def test_scoreboard_counts_points_and_builds_snake_board():
 
     assert payload["managers"][0]["name"] == "One"
     assert payload["managers"][0]["fantasyPoints"] == 1.0
+    assert payload["managers"][0]["teams"][0]["expectedPlayoffPoints"] == 0.0
     assert payload["managers"][1]["teams"][0]["nextGame"]["opponent"] == "Gamma"
     assert [pick["managerSlot"] for pick in payload["draftBoard"]] == [1, 2, 2, 1]

@@ -158,6 +158,52 @@
     });
   }
 
+  function renderTeamEv() {
+    const teams = data.managers
+      .flatMap((manager) => manager.teams)
+      .sort((a, b) => b.preseasonExpectedPoints - a.preseasonExpectedPoints || a.preseasonRank - b.preseasonRank);
+    const body = $("teamEvBody");
+    body.replaceChildren();
+    teams.forEach((team, index) => {
+      const row = document.createElement("tr");
+      if (team.managerSlot === state.managerSlot) row.className = "selected";
+      const rank = document.createElement("td");
+      rank.textContent = String(index + 1);
+      const teamCell = document.createElement("td");
+      const teamWrap = document.createElement("div");
+      teamWrap.className = "ev-team";
+      const logo = document.createElement("img");
+      logo.src = team.logo;
+      logo.alt = "";
+      logo.loading = "lazy";
+      const name = document.createElement("span");
+      name.textContent = team.team;
+      teamWrap.append(logo, name);
+      teamCell.append(teamWrap);
+      const owner = document.createElement("td");
+      owner.textContent = team.manager;
+      const total = document.createElement("td");
+      total.className = "ev-total";
+      total.textContent = formatNumber(team.preseasonExpectedPoints, 2);
+      const regular = document.createElement("td");
+      regular.className = "ev-component";
+      regular.textContent = formatNumber(team.expectedRegularPoints, 2);
+      const conference = document.createElement("td");
+      conference.className = "ev-component";
+      conference.textContent = formatNumber(team.expectedConferencePoints, 2);
+      const playoff = document.createElement("td");
+      playoff.className = "ev-component";
+      playoff.textContent = formatNumber(team.expectedPlayoffPoints, 2);
+      const playoffChance = document.createElement("td");
+      playoffChance.textContent = `${formatNumber(team.playoffProbability * 100, 1)}%`;
+      const current = document.createElement("td");
+      current.textContent = formatNumber(team.fantasyPoints);
+      row.append(rank, teamCell, owner, total, regular, conference, playoff, playoffChance, current);
+      body.append(row);
+    });
+    $("teamEvCount").textContent = `${teams.length} drafted teams · preseason model`;
+  }
+
   function renderDraftBoard() {
     const board = $("draftBoard");
     board.replaceChildren();
@@ -187,7 +233,7 @@
   }
 
   function setView(view, updateHash = true) {
-    state.view = ["roster", "standings", "draft"].includes(view) ? view : "roster";
+    state.view = ["roster", "standings", "teamEv", "draft"].includes(view) ? view : "roster";
     document.querySelectorAll(".page-view").forEach((node) => { node.hidden = true; });
     $(`${state.view}View`).hidden = false;
     document.querySelectorAll(".view-tab").forEach((button) => {
@@ -206,6 +252,7 @@
     history.replaceState(null, "", `${url.pathname}${url.search}${location.hash}`);
     renderRoster();
     renderStandings();
+    renderTeamEv();
     renderDraftBoard();
   }
 
@@ -241,6 +288,7 @@
     $("draftProgress").textContent = `${data.recordedPicks} of ${data.totalPicks} picks recorded`;
     renderRoster();
     renderStandings();
+    renderTeamEv();
     renderDraftBoard();
     setView(location.hash.slice(1) || "roster", false);
     $("loading").hidden = true;
