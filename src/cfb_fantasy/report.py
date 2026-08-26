@@ -179,6 +179,23 @@ point; unselected candidates at that step are retained in `feature_screen.csv`.
 
 {feature_table}
 
+## Additional factor research
+
+A second screen tested 16 deployable lagged-efficiency and recruiting variables
+plus historical returning-production measures. Candidates had to beat the 95th
+percentile random-feature gain and retain one-sided significance after Holm
+family-wise correction. None passed both gates. Prior EPA/play margin was the
+best deployable score-layer addition (AUC `+0.00060`, log loss `-0.00061`,
+Holm `p=1.000`). Offensive returning production was larger (AUC `+0.00810`, log
+loss `-0.00601`) but failed correction (`p=0.156`) and has no 2026 public file.
+
+All candidates were also tested against the deployed FPI-plus-market model on
+1,830 covered 2024-25 games. Defensive returning production was best (AUC
+`+0.00083`, log loss `-0.00103`) but was not significant before correction
+(`p=0.122` using season-week blocks) and had Holm `p=1.000`. Production
+therefore remains unchanged.
+Full results and deferred-factor notes are in `docs/FACTOR_RESEARCH.md`.
+
 ## Probability calibration study
 
 Lower log loss, Brier, ICI, E50, E90, Emax, and Murphy miscalibration are better;

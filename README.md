@@ -61,7 +61,8 @@ the season rather than retaining their preseason values.
 The underlying forecast prices every known matchup using both teams' pregame
 strength and venue, then simulates conference championships and the 12-team
 playoff. See `results/MODEL_CARD.md`, `docs/METHODOLOGY.md`, and
-`docs/SOURCES.md` for its validation, calibration, and source details.
+`docs/FACTOR_RESEARCH.md` for its validation, calibration, and factor gates.
+Data-source details are in `docs/SOURCES.md`.
 
 ## Update rosters
 

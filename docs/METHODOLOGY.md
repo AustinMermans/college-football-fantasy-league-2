@@ -45,6 +45,13 @@ when its marginal AUC gain exceeds the random controls' 95th percentile. This
 study is a development diagnostic; log loss remains the probability-model
 selection objective.
 
+An additional factor screen tests lagged efficiency splits, recruiting trends,
+and roster continuity. Admission requires both the random-feature hurdle and a
+one-sided season-blocked improvement test that survives Holm family-wise error
+correction. Candidates are also tested on top of FPI-plus-market consensus;
+improving only the weaker score layer is not enough for deployment. Results and
+rejections are recorded in `docs/FACTOR_RESEARCH.md`.
+
 ## Probability calibration
 
 Identity, intercept-only adjustment, temperature scaling, Platt scaling, beta
