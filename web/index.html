@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta name="theme-color" content="#10291f">
+    <title>College Football Fantasy</title>
+    <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=">
+    <link rel="preconnect" href="https://a.espncdn.com">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="scoreboard-data.js"></script>
+    <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <div id="loading" class="loading-screen">
+      <div class="brand-mark">CF</div>
+      <p>Loading league board...</p>
+    </div>
+
+    <div id="app" class="app-shell" hidden>
+      <header class="topbar">
+        <a class="brand" href="#roster" aria-label="College Football Fantasy home">
+          <span class="brand-mark">CF</span>
+          <span>
+            <strong>College Football Fantasy</strong>
+            <small id="seasonLabel">2026 season</small>
+          </span>
+        </a>
+        <div class="view-control">
+          <label for="managerSelect">Viewing roster</label>
+          <div class="select-wrap">
+            <select id="managerSelect" aria-label="Choose a fantasy manager"></select>
+            <i data-lucide="chevron-down" aria-hidden="true"></i>
+          </div>
+        </div>
+      </header>
+
+      <nav class="view-tabs" aria-label="League views">
+        <button class="view-tab active" type="button" data-view="roster">
+          <i data-lucide="shield" aria-hidden="true"></i><span>Roster</span>
+        </button>
+        <button class="view-tab" type="button" data-view="standings">
+          <i data-lucide="list-ordered" aria-hidden="true"></i><span>Standings</span>
+        </button>
+        <button class="view-tab" type="button" data-view="draft">
+          <i data-lucide="layout-grid" aria-hidden="true"></i><span>Draft Board</span>
+        </button>
+      </nav>
+
+      <main>
+        <section id="rosterView" class="page-view">
+          <header class="roster-hero">
+            <div>
+              <p class="eyebrow">Roster #<span id="managerSlot">9</span></p>
+              <h1 id="managerName">Austin</h1>
+              <p id="rosterStatus">10 teams</p>
+            </div>
+            <div class="hero-rank">
+              <span>League rank</span>
+              <strong id="managerRank">1</strong>
+              <small>of 12</small>
+            </div>
+          </header>
+
+          <div class="metric-strip" aria-label="Roster summary">
+            <div><span>Fantasy points</span><strong id="fantasyPoints">0</strong></div>
+            <div><span>Combined record</span><strong id="combinedRecord">0-0</strong></div>
+            <div><span>Preseason EV</span><strong id="preseasonEv">0.0</strong></div>
+            <div><span>Roster spots</span><strong id="rosterCount">0 / 10</strong></div>
+          </div>
+
+          <div class="roster-layout">
+            <section class="content-section">
+              <div class="section-title">
+                <div>
+                  <p class="eyebrow">Team roster</p>
+                  <h2 id="rosterHeading">Austin's teams</h2>
+                </div>
+                <span id="rosterPointTotal" class="point-total">0 PTS</span>
+              </div>
+              <div id="teamRoster" class="team-roster"></div>
+            </section>
+
+            <aside class="side-column">
+              <section class="side-section">
+                <div class="section-title compact">
+                  <div>
+                    <p class="eyebrow">League leaders</p>
+                    <h2>Top of the table</h2>
+                  </div>
+                </div>
+                <ol id="leaderPreview" class="leader-preview"></ol>
+              </section>
+              <section class="side-section scoring-note">
+                <p class="eyebrow">Scoring</p>
+                <h2>Every counted win is one point.</h2>
+                <p>Regular season, conference championship, and College Football Playoff wins count. Losses, ties, and non-playoff bowls do not.</p>
+              </section>
+            </aside>
+          </div>
+        </section>
+
+        <section id="standingsView" class="page-view" hidden>
+          <header class="page-heading">
+            <div>
+              <p class="eyebrow">League table</p>
+              <h1>Standings</h1>
+            </div>
+            <p id="standingsStamp" class="updated-stamp"></p>
+          </header>
+          <div class="table-shell">
+            <table class="standings-table">
+              <thead>
+                <tr>
+                  <th scope="col">Rank</th>
+                  <th scope="col">Manager</th>
+                  <th scope="col">Points</th>
+                  <th scope="col">Record</th>
+                  <th scope="col">Teams</th>
+                  <th scope="col">Preseason EV</th>
+                </tr>
+              </thead>
+              <tbody id="standingsBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="draftView" class="page-view" hidden>
+          <header class="page-heading">
+            <div>
+              <p class="eyebrow">Reference ledger</p>
+              <h1>Draft Board</h1>
+            </div>
+            <p id="draftProgress" class="updated-stamp"></p>
+          </header>
+          <div id="draftBoard" class="draft-board"></div>
+        </section>
+      </main>
+
+      <footer>
+        <span id="footerSeason">2026 College Football Fantasy</span>
+        <span id="lastUpdated"></span>
+      </footer>
+    </div>
+  </body>
+</html>

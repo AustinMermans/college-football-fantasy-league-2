@@ -1,0 +1,13 @@
+.venv/
+.cache/
+.playwright-cli/
+output/
+*.egg-info/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+data_derived/
+results/*
+!results/MODEL_CARD.md
+!results/live_picks.csv
+!results/team_projections_2026.csv

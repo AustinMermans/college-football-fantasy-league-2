@@ -1,0 +1,32 @@
+[league]
+season = 2026
+managers = 12
+teams_per_manager = 10
+draft_slot = 9
+manager_names = [
+  "Conor",
+  "Gavin",
+  "Cole",
+  "J-Mill",
+  "Jack M.",
+  "B. Mart",
+  "Joey & Jake",
+  "Jack & Tommy",
+  "Austin",
+  "Logan & Max",
+  "Ryan & Markus",
+  "Chris",
+]
+
+[scoring]
+regular_season_win = 1.0
+conference_championship_win = 1.0
+playoff_win = 1.0
+non_playoff_bowl_win = 0.0
+
+[model]
+historical_start_season = 2010
+first_backtest_season = 2018
+simulations = 20000
+random_seed = 20260825
+fpi_home_advantage = 2.5
