@@ -32,32 +32,7 @@ def update_live_projections(
     probabilities["home_id"] = probabilities["home_id"].astype(str)
     probabilities["away_id"] = probabilities["away_id"].astype(str)
 
-    results = games.copy()
-    results["game_id"] = results["game_id"].astype(str)
-    results = results[
-        results["completed"].astype(bool)
-        & results["home_points"].notna()
-        & results["away_points"].notna()
-    ][["game_id", "home_points", "away_points"]]
-    probabilities = probabilities.merge(
-        results, on="game_id", how="left", validate="one_to_one"
-    )
-    if "away_win_probability" not in probabilities:
-        probabilities["away_win_probability"] = (
-            1.0 - probabilities["home_win_probability"]
-        )
-    completed = probabilities["home_points"].notna()
-    probabilities.loc[completed, "home_win_probability"] = (
-        probabilities.loc[completed, "home_points"]
-        > probabilities.loc[completed, "away_points"]
-    ).astype(float)
-    probabilities.loc[completed, "away_win_probability"] = (
-        probabilities.loc[completed, "away_points"]
-        > probabilities.loc[completed, "home_points"]
-    ).astype(float)
-    tied = completed & probabilities["home_points"].eq(probabilities["away_points"])
-    probabilities.loc[tied, "home_win_probability"] = 0.0
-    probabilities.loc[tied, "away_win_probability"] = 0.0
+    probabilities = apply_completed_results(games, probabilities)
 
     home = probabilities.groupby("home_id")["home_win_probability"].sum()
     away = probabilities.groupby("away_id")["away_win_probability"].sum()
@@ -81,6 +56,42 @@ def update_live_projections(
     ).reset_index(drop=True)
     frame["overall_rank"] = frame.index + 1
     return frame
+
+
+def apply_completed_results(
+    games: pd.DataFrame, game_probabilities: pd.DataFrame
+) -> pd.DataFrame:
+    """Set completed games to their realized win probabilities."""
+    probabilities = game_probabilities.copy()
+    probabilities["game_id"] = probabilities["game_id"].astype(str)
+    if "away_win_probability" not in probabilities:
+        probabilities["away_win_probability"] = (
+            1.0 - probabilities["home_win_probability"]
+        )
+    results = games.copy()
+    results["game_id"] = results["game_id"].astype(str)
+    results = results[
+        results["completed"].astype(bool)
+        & results["home_points"].notna()
+        & results["away_points"].notna()
+    ][["game_id", "home_points", "away_points"]]
+    probabilities = probabilities.merge(
+        results, on="game_id", how="left", validate="one_to_one"
+    )
+    completed = probabilities["home_points"].notna()
+    probabilities.loc[completed, "home_win_probability"] = (
+        probabilities.loc[completed, "home_points"]
+        > probabilities.loc[completed, "away_points"]
+    ).astype(float)
+    probabilities.loc[completed, "away_win_probability"] = (
+        probabilities.loc[completed, "away_points"]
+        > probabilities.loc[completed, "home_points"]
+    ).astype(float)
+    tied = completed & probabilities["home_points"].eq(probabilities["away_points"])
+    probabilities.loc[tied, "home_win_probability"] = 0.0
+    probabilities.loc[tied, "away_win_probability"] = 0.0
+    probabilities.loc[completed, "probability_source"] = "completed_result"
+    return probabilities
 
 
 def build_scoreboard(

@@ -1,6 +1,6 @@
 # 2026 College Football Fantasy Draft Report
 
-Generated 2026-08-26T04:29:16.873914+00:00 from 892 known
+Generated 2026-08-26T04:37:18.156035+00:00 from 892 known
 regular-season games and 20,000 season simulations.
 
 ## Scoring used
@@ -119,6 +119,15 @@ a claim of the same percentage reduction in raw log loss.
 | fpi_market_consensus            |         2 |    1830 |          0.4747 |       0.1597 |          0.7551 |         0.833  |
 | updated_pregame_fpi             |         2 |    1830 |          0.4864 |       0.164  |          0.7442 |         0.8231 |
 | enhanced_frozen_preseason_score |         2 |    1830 |          0.5571 |       0.192  |          0.6906 |         0.7485 |
+
+## Incremental in-season update
+
+The public leaderboard is rebuilt daily from current ESPN results and FPI plus
+available market lines. Completed games become fixed 0/1 outcomes; current FPI
+updates uncovered future games; the market model updates covered future games.
+The complete `20,000`-season simulation is then rerun with a fixed random seed,
+so conference-title, CFP, national-title, and total expected value all respond
+to the latest season state without introducing avoidable Monte Carlo drift.
 
 ## Live draft optimizer
 

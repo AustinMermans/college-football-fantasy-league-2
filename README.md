@@ -20,10 +20,12 @@ recorded roster file is the source of truth.
 
 ## Daily score refresh
 
-GitHub Actions downloads the current season schedules from ESPN every day at
-4:00 AM America/Los_Angeles, rebuilds `web/scoreboard-data.js`, and deploys the
-static `web/` directory to GitHub Pages. The workflow can also be run manually
-from the Actions tab.
+GitHub Actions downloads current schedules, results, and FPI from ESPN plus
+available betting lines every day at 4:00 AM America/Los_Angeles. It then fixes
+completed games as outcomes, updates future-game probabilities, reruns 20,000
+conference-title and CFP simulations, rebuilds `web/scoreboard-data.js`, and
+deploys the static `web/` directory to GitHub Pages. The workflow can also be
+run manually from the Actions tab.
 
 The refresh command is:
 
@@ -52,7 +54,9 @@ ESPN's public team schedule endpoints for completed results and upcoming games.
 `results/team_projections_2026.csv` contains the schedule-adjusted baseline.
 The daily build replaces completed-game forecasts with results and updates
 covered future games from the betting market before publishing projected
-points. Uncovered games retain their FPI probability.
+points. Uncovered games use current FPI. Because the full season simulation is
+rerun, conference-title, playoff, national-title, and total EV all evolve with
+the season rather than retaining their preseason values.
 
 The underlying forecast prices every known matchup using both teams' pregame
 strength and venue, then simulates conference championships and the 12-team

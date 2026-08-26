@@ -38,6 +38,8 @@ The model must produce:
 9. When served through the local application, an atomic JSON state file and an
    append-only action journal that survive browser-data deletion and retain the
    manager assigned to every active pick.
+10. A daily in-season projection that ingests results, current FPI, and current
+    lines, then reruns the complete conference-title and CFP simulation.
 
 ## Information boundary
 

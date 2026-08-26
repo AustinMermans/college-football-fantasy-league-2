@@ -218,6 +218,16 @@ a claim of the same percentage reduction in raw log loss.
 
 {market_table}
 
+## Incremental in-season update
+
+The public leaderboard is rebuilt daily from current ESPN results and FPI plus
+available market lines. Completed games become fixed 0/1 outcomes; current FPI
+updates uncovered future games; the market model updates covered future games.
+The complete `{simulations:,}`-season simulation is then rerun with a fixed
+random seed, so conference-title, CFP, national-title, and total expected value
+all respond to the latest season state without introducing avoidable Monte
+Carlo drift.
+
 ## Live draft optimizer
 
 The browser draft room evaluates candidate teams against the full joint

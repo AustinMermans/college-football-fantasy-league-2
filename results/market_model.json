@@ -8,7 +8,9 @@
     "fpi_logit",
     "spread_edge"
   ],
+  "fpi_home_advantage": 2.5,
   "fpi_log_loss": 0.4864195070678684,
+  "fpi_logistic_scale": 9.443339250744689,
   "intercept": 0.9417021779104571,
   "market_log_loss": 0.4746898932395469,
   "market_predictive_skill": 0.31516724506319416,
@@ -22,6 +24,7 @@
   ],
   "score_log_loss": 0.5570611466420821,
   "score_predictive_skill": 0.1963306462675486,
+  "season_strength_correlation": 0.09423409171809918,
   "skill_improvement_vs_score": 0.6052880742505253,
   "training_games": 2708,
   "training_start_season": 2023

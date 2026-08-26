@@ -235,6 +235,19 @@ def run_pipeline(args: argparse.Namespace) -> None:
     )
     fpi_weight = float(ensemble_calibration["fpi_weight"])
     fpi_logistic_scale = float(ensemble_calibration["fpi_logistic_scale"])
+    market_payload.update(
+        {
+            "fpi_home_advantage": float(model_config["fpi_home_advantage"]),
+            "fpi_logistic_scale": fpi_logistic_scale,
+            "season_strength_correlation": float(
+                ensemble_calibration["season_strength_correlation"]
+            ),
+        }
+    )
+    (results_dir / "market_model.json").write_text(
+        json.dumps(market_payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
 
     game_probabilities = attach_consensus_probabilities(
         game_features,

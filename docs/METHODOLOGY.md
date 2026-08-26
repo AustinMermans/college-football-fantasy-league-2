@@ -83,7 +83,19 @@ with the home-team point spread. It is tested with an expanding window using
 2023 as the first training season and 2024 as the first test season. This is a
 live forecasting layer rather than a frozen-preseason input. Games without a
 published line use FPI, and completed games are replaced with their realized
-0/1 result before the website recomputes regular-season expected points.
+0/1 result.
+
+## Incremental in-season update
+
+The daily workflow refreshes ESPN FPI, which incorporates the season's new team
+performance data, and converts the new ratings into matchup probabilities with
+the preseason-validated logistic scale and home-field adjustment. A current
+market line overrides that FPI-only probability through the validated market
+consensus model. Completed games are fixed as realized outcomes. The workflow
+then reruns all 20,000 joint season simulations, including conference title
+games and the CFP, so every regular-season and postseason component of EV can
+change after each daily update. The fixed random seed prevents Monte Carlo
+noise from looking like a model change when the inputs have not changed.
 
 ## Season simulation
 

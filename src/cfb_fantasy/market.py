@@ -19,6 +19,32 @@ MARKET_TRAINING_START = 2023
 MARKET_FIRST_TEST_SEASON = 2024
 
 
+def update_fpi_probabilities(
+    games: pd.DataFrame,
+    fpi: pd.DataFrame,
+    *,
+    logistic_scale: float,
+    home_advantage: float,
+) -> pd.DataFrame:
+    """Refresh remaining-game probabilities from the latest team FPI values."""
+    if logistic_scale <= 0.0:
+        raise ValueError("logistic_scale must be positive")
+    frame = games.copy()
+    rating = dict(zip(fpi["team_id"].astype(str), fpi["fpi"].astype(float)))
+    home_rating = frame["home_id"].astype(str).map(rating)
+    away_rating = frame["away_id"].astype(str).map(rating)
+    covered = home_rating.notna() & away_rating.notna()
+    venue = (~frame["neutral_site"].astype(bool)).astype(float) * home_advantage
+    probability = expit((home_rating - away_rating + venue) / logistic_scale)
+    frame.loc[covered, "fpi_home_win_probability"] = probability[covered]
+    frame.loc[covered, "fpi_home_probability"] = probability[covered]
+    frame.loc[covered, "home_win_probability"] = probability[covered]
+    frame.loc[covered, "away_win_probability"] = 1.0 - probability[covered]
+    frame["current_fpi_used"] = covered
+    frame["probability_source"] = np.where(covered, "current_fpi", "baseline")
+    return frame
+
+
 def _metrics(target: pd.Series, probability: np.ndarray) -> dict[str, float]:
     probability = np.clip(np.asarray(probability, dtype=float), 1e-6, 1.0 - 1e-6)
     return {

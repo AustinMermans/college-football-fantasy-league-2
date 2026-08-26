@@ -14,15 +14,21 @@ sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
 from cfb_fantasy.data import (  # noqa: E402
     fetch_betting,
+    fetch_fpi,
     fetch_target_season,
     load_betting,
 )
-from cfb_fantasy.market import MarketConsensus, apply_market_consensus  # noqa: E402
+from cfb_fantasy.market import (  # noqa: E402
+    MarketConsensus,
+    apply_market_consensus,
+    update_fpi_probabilities,
+)
 from cfb_fantasy.scoreboard import (  # noqa: E402
+    apply_completed_results,
     build_scoreboard,
-    update_live_projections,
     write_scoreboard_data,
 )
+from cfb_fantasy.simulate import Scoring, simulate_season  # noqa: E402
 
 
 def main() -> None:
@@ -34,41 +40,71 @@ def main() -> None:
         config = tomllib.load(handle)
     league = config["league"]
     season = int(league["season"])
+    model_config = config["model"]
+    cache_dir = PROJECT_ROOT / ".cache" / "cfb_fantasy"
 
     if args.refresh:
         teams, games = fetch_target_season(
-            PROJECT_ROOT / ".cache" / "cfb_fantasy",
+            cache_dir,
             season,
             refresh=True,
         )
+        current_fpi = fetch_fpi(cache_dir, season, refresh=True)
+        teams = teams.merge(current_fpi, on="team_id", how="left", validate="one_to_one")
     else:
         teams = pd.read_csv(PROJECT_ROOT / "data_derived" / f"teams_{season}.csv")
         games = pd.read_csv(PROJECT_ROOT / "data_derived" / f"schedule_{season}.csv")
 
     picks = pd.read_csv(PROJECT_ROOT / "results" / "live_picks.csv")
-    projections = pd.read_csv(
-        PROJECT_ROOT / "results" / f"team_projections_{season}.csv"
-    )
     probabilities = pd.read_csv(
         PROJECT_ROOT / "results" / f"game_probabilities_{season}.csv"
     )
+    market_summary = json.loads(
+        (PROJECT_ROOT / "results" / "market_model.json").read_text()
+    )
     if args.refresh:
+        probabilities = update_fpi_probabilities(
+            probabilities,
+            teams,
+            logistic_scale=float(market_summary["fpi_logistic_scale"]),
+            home_advantage=float(market_summary["fpi_home_advantage"]),
+        )
         betting_paths = fetch_betting(
-            PROJECT_ROOT / ".cache" / "cfb_fantasy",
+            cache_dir,
             season,
             season,
             refresh=True,
         )
         betting = load_betting(betting_paths)
-        market_summary = json.loads(
-            (PROJECT_ROOT / "results" / "market_model.json").read_text()
-        )
         probabilities = apply_market_consensus(
             probabilities,
             betting,
             MarketConsensus.from_summary(market_summary),
         )
-    projections = update_live_projections(games, probabilities, projections)
+    probabilities = apply_completed_results(games, probabilities)
+    scoring = Scoring(
+        regular=float(config["scoring"]["regular_season_win"]),
+        conference_championship=float(
+            config["scoring"]["conference_championship_win"]
+        ),
+        playoff=float(config["scoring"]["playoff_win"]),
+    )
+    simulation = simulate_season(
+        teams,
+        probabilities,
+        {},
+        None,
+        simulations=int(model_config["simulations"]),
+        seed=int(model_config["random_seed"]),
+        scoring=scoring,
+        fpi_weight=1.0,
+        fpi_logistic_scale=float(market_summary["fpi_logistic_scale"]),
+        fpi_home_advantage=float(market_summary["fpi_home_advantage"]),
+        season_strength_correlation=float(
+            market_summary["season_strength_correlation"]
+        ),
+    )
+    projections = simulation.projections
     payload = build_scoreboard(
         games,
         teams,

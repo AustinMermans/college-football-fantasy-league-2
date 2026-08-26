@@ -27,7 +27,7 @@ class SeasonSimulation:
 def _pairwise_probabilities(
     team_ids: list[str],
     states: dict[str, TeamState],
-    model: FittedGameModel,
+    model: FittedGameModel | None,
     fpi_by_id: dict[str, float],
     context_by_id: dict[str, dict[str, float]],
     *,
@@ -38,23 +38,28 @@ def _pairwise_probabilities(
 ) -> np.ndarray:
     if fpi_logistic_scale <= 0.0:
         raise ValueError("fpi_logistic_scale must be positive")
-    rows: list[dict[str, float]] = []
-    for home_id in team_ids:
-        for away_id in team_ids:
-            row = matchup_features(
-                states.get(home_id, TeamState()),
-                states.get(away_id, TeamState()),
-                neutral=neutral,
-            )
-            home_context = context_by_id.get(home_id, {})
-            away_context = context_by_id.get(away_id, {})
-            for column in ("talent_composite", "blue_chip_ratio", "net_adj_epa"):
-                row[f"{column}_diff"] = (
-                    home_context.get(column, np.nan)
-                    - away_context.get(column, np.nan)
+    if fpi_weight < 1.0:
+        if model is None:
+            raise ValueError("score model is required when fpi_weight is below one")
+        rows: list[dict[str, float]] = []
+        for home_id in team_ids:
+            for away_id in team_ids:
+                row = matchup_features(
+                    states.get(home_id, TeamState()),
+                    states.get(away_id, TeamState()),
+                    neutral=neutral,
                 )
-            rows.append(row)
-    score_probabilities = model.predict_home(pd.DataFrame(rows))
+                home_context = context_by_id.get(home_id, {})
+                away_context = context_by_id.get(away_id, {})
+                for column in ("talent_composite", "blue_chip_ratio", "net_adj_epa"):
+                    row[f"{column}_diff"] = (
+                        home_context.get(column, np.nan)
+                        - away_context.get(column, np.nan)
+                    )
+                rows.append(row)
+        score_probabilities = model.predict_home(pd.DataFrame(rows))
+    else:
+        score_probabilities = np.zeros(len(team_ids) ** 2)
     fpi_probabilities = []
     for home_id in team_ids:
         for away_id in team_ids:
@@ -168,7 +173,7 @@ def simulate_season(
     teams: pd.DataFrame,
     games: pd.DataFrame,
     states: dict[str, TeamState],
-    model: FittedGameModel,
+    model: FittedGameModel | None,
     *,
     simulations: int,
     seed: int,
