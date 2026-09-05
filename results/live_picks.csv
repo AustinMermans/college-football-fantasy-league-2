@@ -1,1 +1,121 @@
 pick_number,round,manager_slot,manager,team_id,team
+1,1,1,Reeders,87,Notre Dame
+2,1,2,Billy,2390,Miami
+3,1,3,Frank,194,Ohio State
+4,1,4,Tommy,251,Texas
+5,1,5,Neu'man,2483,Oregon
+6,1,6,TFT,252,BYU
+7,1,7,Hendo,61,Georgia
+8,1,8,Alzak,2641,Texas Tech
+9,1,9,Hall's,84,Indiana
+10,1,10,Dougie,2449,North Dakota State
+11,1,11,Lobo,99,LSU
+12,1,12,Lomi,333,Alabama
+13,2,12,Lomi,68,Boise State
+14,2,11,Lobo,30,USC
+15,2,10,Dougie,2335,Liberty
+16,2,9,Hall's,2567,SMU
+17,2,8,Alzak,264,Washington
+18,2,7,Hendo,213,Penn State
+19,2,6,TFT,256,James Madison
+20,2,5,Neu'man,248,Houston
+21,2,4,Tommy,2439,UNLV
+22,2,3,Frank,201,Oklahoma
+23,2,2,Billy,254,Utah
+24,2,1,Reeders,2306,Kansas State
+25,3,1,Reeders,2426,Navy
+26,3,2,Billy,58,South Florida
+27,3,3,Frank,245,Texas A&M
+28,3,4,Tommy,324,Coastal Carolina
+29,3,5,Neu'man,167,New Mexico
+30,3,6,TFT,62,Hawai'i
+31,3,7,Hendo,130,Michigan
+32,3,8,Alzak,2649,Toledo
+33,3,9,Hall's,97,Louisville
+34,3,10,Dougie,349,Army
+35,3,11,Lobo,2633,Tennessee
+36,3,12,Lomi,2005,Air Force
+37,4,12,Lomi,2050,Ball State
+38,4,11,Lobo,145,Ole Miss
+39,4,10,Dougie,193,Miami (OH)
+40,4,9,Hall's,228,Clemson
+41,4,8,Alzak,151,East Carolina
+42,4,7,Hendo,2711,Western Michigan
+43,4,6,TFT,2294,Iowa
+44,4,5,Neu'man,98,Western Kentucky
+45,4,4,Tommy,77,Northwestern
+46,4,3,Frank,57,Florida
+47,4,2,Billy,258,Virginia
+48,4,1,Reeders,12,Arizona
+49,5,1,Reeders,152,NC State
+50,5,2,Billy,221,Pittsburgh
+51,5,3,Frank,142,Missouri
+52,5,4,Tommy,278,Fresno State
+53,5,5,Neu'man,276,Marshall
+54,5,6,TFT,9,Arizona State
+55,5,7,Hendo,235,Memphis
+56,5,8,Alzak,2636,UTSA
+57,5,9,Hall's,2628,TCU
+58,5,10,Dougie,356,Illinois
+59,5,11,Lobo,21,San Diego State
+60,5,12,Lomi,2655,Tulane
+61,6,12,Lomi,295,Old Dominion
+62,6,11,Lobo,309,Louisiana
+63,6,10,Dougie,259,Virginia Tech
+64,6,9,Hall's,2653,Troy
+65,6,8,Alzak,59,Georgia Tech
+66,6,7,Hendo,338,Kennesaw State
+67,6,6,TFT,2579,South Carolina
+68,6,5,Neu'man,2116,UCF
+69,6,4,Tommy,2,Auburn
+70,6,3,Frank,158,Nebraska
+71,6,2,Billy,195,Ohio
+72,6,1,Reeders,26,UCLA
+73,7,1,Reeders,197,Oklahoma State
+74,7,2,Billy,275,Wisconsin
+75,7,3,Frank,238,Vanderbilt
+76,7,4,Tommy,2084,Buffalo
+77,7,5,Neu'man,2032,Arkansas State
+78,7,6,TFT,290,Georgia Southern
+79,7,7,Hendo,52,Florida State
+80,7,8,Alzak,25,California
+81,7,9,Hall's,2199,Eastern Michigan
+82,7,10,Dougie,2117,Central Michigan
+83,7,11,Lobo,326,Texas State
+84,7,12,Lomi,135,Minnesota
+85,8,12,Lomi,2132,Cincinnati
+86,8,11,Lobo,2229,Florida International
+87,8,10,Dougie,48,Delaware
+88,8,9,Hall's,277,West Virginia
+89,8,8,Alzak,265,Washington State
+90,8,7,Hendo,239,Baylor
+91,8,6,TFT,66,Iowa State
+92,8,5,Neu'man,2026,App State
+93,8,4,Tommy,8,Arkansas
+94,8,3,Frank,150,Duke
+95,8,2,Billy,2226,Florida Atlantic
+96,8,1,Reeders,2348,Louisiana Tech
+97,9,1,Reeders,6,South Alabama
+98,9,2,Billy,249,North Texas
+99,9,3,Frank,344,Mississippi State
+100,9,4,Tommy,96,Kentucky
+101,9,5,Neu'man,41,UConn
+102,9,6,TFT,2751,Wyoming
+103,9,7,Hendo,218,Temple
+104,9,8,Alzak,2305,Kansas
+105,9,9,Hall's,154,Wake Forest
+106,9,10,Dougie,202,Tulsa
+107,9,11,Lobo,120,Maryland
+108,9,12,Lomi,153,North Carolina
+109,10,12,Lomi,2006,Akron
+110,10,11,Lobo,328,Utah State
+111,10,10,Dougie,2247,Georgia State
+112,10,9,Hall's,189,Bowling Green
+113,10,8,Alzak,2440,Nevada
+114,10,7,Hendo,16,Sacramento State
+115,10,6,TFT,23,San José State
+116,10,5,Neu'man,2459,Northern Illinois
+117,10,4,Tommy,103,Boston College
+118,10,3,Frank,164,Rutgers
+119,10,2,Billy,127,Michigan State
+120,10,1,Reeders,204,Oregon State

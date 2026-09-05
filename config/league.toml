@@ -4,18 +4,18 @@ managers = 12
 teams_per_manager = 10
 draft_slot = 1
 manager_names = [
-  "Manager 1",
-  "Manager 2",
-  "Manager 3",
-  "Manager 4",
-  "Manager 5",
-  "Manager 6",
-  "Manager 7",
-  "Manager 8",
-  "Manager 9",
-  "Manager 10",
-  "Manager 11",
-  "Manager 12",
+  "Reeders",
+  "Billy",
+  "Frank",
+  "Tommy",
+  "Neu'man",
+  "TFT",
+  "Hendo",
+  "Alzak",
+  "Hall's",
+  "Dougie",
+  "Lobo",
+  "Lomi",
 ]
 
 [scoring]

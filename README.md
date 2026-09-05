@@ -49,9 +49,8 @@ Open `http://127.0.0.1:8765`.
 
 ## Data and model
 
-`results/live_picks.csv` contains the recorded draft. The copied league starts
-with 12 placeholder manager names and no selections; edit `config/league.toml`
-and this CSV with the new league's names and teams. The daily scoreboard uses
+`results/live_picks.csv` contains the recorded ten-round draft. Manager names
+are configured in `config/league.toml`. The daily scoreboard uses
 ESPN's public team schedule endpoints for completed results and upcoming games.
 `results/team_projections_2026.csv` contains the schedule-adjusted baseline.
 The daily build replaces completed-game forecasts with results and updates
