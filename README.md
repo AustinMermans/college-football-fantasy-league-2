@@ -1,9 +1,9 @@
-# College Football Fantasy
+# College Football Fantasy - League 2
 
 A public roster board and live scoreboard for a 12-manager fantasy league that
 drafts college football teams instead of players.
 
-**Live site:** [austinmermans.github.io/college-football-fantasy](https://austinmermans.github.io/college-football-fantasy/)
+**Live site:** [austinmermans.github.io/college-football-fantasy-league-2](https://austinmermans.github.io/college-football-fantasy-league-2/)
 
 ## League scoring
 
@@ -49,7 +49,9 @@ Open `http://127.0.0.1:8765`.
 
 ## Data and model
 
-`results/live_picks.csv` contains the recorded draft. The daily scoreboard uses
+`results/live_picks.csv` contains the recorded draft. The copied league starts
+with 12 placeholder manager names and no selections; edit `config/league.toml`
+and this CSV with the new league's names and teams. The daily scoreboard uses
 ESPN's public team schedule endpoints for completed results and upcoming games.
 `results/team_projections_2026.csv` contains the schedule-adjusted baseline.
 The daily build replaces completed-game forecasts with results and updates

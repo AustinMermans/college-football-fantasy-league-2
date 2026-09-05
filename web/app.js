@@ -3,7 +3,7 @@
 
   const data = window.CFB_SCOREBOARD_DATA;
   const $ = (id) => document.getElementById(id);
-  const state = { managerSlot: 9, view: "roster" };
+  const state = { managerSlot: 1, view: "roster" };
 
   function formatNumber(value, digits = 0) {
     return Number(value || 0).toLocaleString(undefined, {
@@ -269,7 +269,7 @@
       selector.append(option);
     });
     const requested = Number(new URL(location.href).searchParams.get("manager"));
-    state.managerSlot = data.managers.some((manager) => manager.slot === requested) ? requested : 9;
+    state.managerSlot = data.managers.some((manager) => manager.slot === requested) ? requested : 1;
     selector.value = String(state.managerSlot);
     selector.addEventListener("change", (event) => setManager(event.target.value));
     document.querySelectorAll(".view-tab").forEach((button) => {
