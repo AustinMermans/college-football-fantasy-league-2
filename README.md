@@ -21,7 +21,7 @@ recorded roster file is the source of truth.
 ## Daily score refresh
 
 GitHub Actions downloads current schedules, results, and FPI from ESPN plus
-available betting lines every day at 4:00 AM America/Los_Angeles. It then fixes
+available betting lines every day at 4:37 AM America/Los_Angeles. It then fixes
 completed games as outcomes, updates future-game probabilities, reruns 20,000
 conference-title and CFP simulations, rebuilds `web/scoreboard-data.js`, and
 deploys the static `web/` directory to GitHub Pages. The workflow can also be

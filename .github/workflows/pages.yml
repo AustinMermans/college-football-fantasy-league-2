@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: "0 4 * * *"
+    - cron: "37 4 * * *"
       timezone: "America/Los_Angeles"
   workflow_dispatch:
 
@@ -34,7 +34,17 @@ jobs:
         run: pip install .
 
       - name: Refresh scores
-        run: python scripts/refresh_scoreboard.py --refresh
+        shell: bash
+        run: |
+          for attempt in 1 2 3; do
+            if python scripts/refresh_scoreboard.py --refresh; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              sleep $((attempt * 30))
+            fi
+          done
+          exit 1
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
